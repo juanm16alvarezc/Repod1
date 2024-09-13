@@ -14,7 +14,124 @@ unsigned long tiempoInicio = 0;
 unsigned long tiempoFin = 0;
 int unsigned long debounceDelay = 50; 
 
+bool verificarcuadrada(float arreglo[],int cont){
+    if (cont < 2) {
+        return false;
+    }
 
+    int primerValor = arreglo[0];
+    int segundoValor;
+    bool encontradoSegundoValor = false;
+
+    for (int i = 1; i < cont-1; i++) {
+        if (arreglo[i] != primerValor) {
+            if (!encontradoSegundoValor) {
+                segundoValor = arreglo[i];
+                encontradoSegundoValor = true;
+            } else if (arreglo[i] != segundoValor) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+bool verificartriangular(float arreglo[], int cont){
+    float tiempoentredatos=0.1;
+    float pendiente1=(arreglo[1]-arreglo[0])/tiempoentredatos;
+    float pendiente2;
+    bool encontradoSegundoValor = false;
+    bool bandera;
+    bool bandera2=true;
+    for (int i = 1; i < cont-1; i++) {
+        if(pendiente1>0){
+            if (((arreglo[i+1]-arreglo[i])/ tiempoentredatos)>0){
+                if(((arreglo[i+1]-arreglo[i])/ tiempoentredatos)-pendiente1<=100 && ((arreglo[i+1]-arreglo[i])/ tiempoentredatos)-pendiente1>=-100){
+                    bandera=true;
+                }
+                else{
+                    return false;
+                }
+            }
+            else{
+                bandera=false;
+            }
+        }
+        else{
+            if (((arreglo[i+1]-arreglo[i])/ tiempoentredatos)<0){
+                if(((arreglo[i+1]-arreglo[i])/ tiempoentredatos)-pendiente1<=1000 && ((arreglo[i+1]-arreglo[i])/ tiempoentredatos)-pendiente1>=-1000){
+                    bandera=true;
+                }
+                else{
+                    return false;
+                }
+            }
+            else{
+                bandera=false;
+            }
+        }      
+        if (!bandera){
+            if (!encontradoSegundoValor) {
+                pendiente2 = (arreglo[i+1]-arreglo[i])/tiempoentredatos;
+                encontradoSegundoValor = true;
+            } 
+            else{
+                if(pendiente2>0){
+                    if ((arreglo[i+1]-arreglo[i])/ tiempoentredatos>0){
+                        if(((arreglo[i+1]-arreglo[i])/ tiempoentredatos)-pendiente2<=1000 && ((arreglo[i+1]-arreglo[i])/ tiempoentredatos)-pendiente2>=-1000){
+                            bandera2=true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                    else{
+                        bandera2=false;
+                    }
+                }
+                else{
+                    if (((arreglo[i+2]-arreglo[i+1])/ tiempoentredatos)<0){
+                        if(((arreglo[i+2]-arreglo[i+1])/ tiempoentredatos)-pendiente2<=1000 && ((arreglo[i+2]-arreglo[i+1])/ tiempoentredatos)-pendiente2>=-1000){
+                            bandera2=true;
+                        }
+                        else{
+                            return false;
+                        }
+                    }
+                    else{
+                        bandera2=false;
+                    }
+                }
+            }
+            if (!bandera2) {
+                return false;
+            }
+        }  
+    }
+    return true;
+}
+  
+    
+
+int tiposenal(float arreglo[], int cont){
+  bool cuadrada=false;
+  bool triangular=false;
+  bool senoidal=false;
+  bool desconocida=false;
+  cuadrada=verificarcuadrada(arreglo,cont);
+  triangular=verificartriangular(arreglo,cont);
+  if (cuadrada){
+    return 1;
+  }
+  else if(triangular){
+    return 2;
+  }
+    
+}
+ 
+      
+        
+
+/*
 float frecuencia(float arreglo[],int cont, float tiempo){
   float mayor1=arreglo[0];
   float mayor2=arreglo[0];
@@ -33,6 +150,7 @@ float frecuencia(float arreglo[],int cont, float tiempo){
     }
   
 }
+*/
 
 float amplitud(float arreglo[],int cont){
   float mayor=arreglo[0];
@@ -47,18 +165,18 @@ float amplitud(float arreglo[],int cont){
     }
   }
   amplitud=(mayor-menor)/2;
-  return amplitud;
+  return amplitud/100;
 }
   
 
-void setup() {
+void setup(){
   lcd.begin(16, 2);
   pinMode(pinInicio, INPUT);
   pinMode(pinFin, INPUT); 
   Serial.begin(9600);
 }
 
-void loop() {
+void loop(){
   bool estadoInicio = digitalRead(pinInicio);
   bool estadoFin = digitalRead(pinFin);
   
@@ -90,23 +208,37 @@ void loop() {
     lcd.setCursor(0, 1);
     lcd.print("Senal: ");
     lcd.print(lecturaSenal);
-    arreglo[cont]=lecturaSenal/100;
+    arreglo[cont]=lecturaSenal;
     cont++;
 
     Serial.print("Lectura de senal: ");
     Serial.println(lecturaSenal);
     bandera=true;
   }
-  else 
-  {
+  else{
     if (bandera){
-      float *amplitudf= new float;
-      *amplitudf=amplitud(arreglo,cont);
+      float amplitudf;
+      int *tiposenalvar=new int;
+      amplitudf=amplitud(arreglo,cont);
       lcd.print("A: ");
-      lcd.print(*amplitudf);
+      lcd.print(amplitudf);
       lcd.print(" V");
-      delete amplitudf;
+      lcd.setCursor(0, 1);
+      lcd.print("T.S: ");
+      *tiposenalvar=tiposenal(arreglo,cont);    
+      if (*tiposenalvar==1){
+        lcd.print("C");
       }
+      if (*tiposenalvar==2){
+        lcd.print("T");
+      }
+      if (*tiposenalvar==3){
+        lcd.print("S");
+      }
+      if (*tiposenalvar==4){
+        lcd.print("DES");
+      }
+    }
     delete[]arreglo;
 	cont=0;
     bandera=false;
@@ -115,6 +247,5 @@ void loop() {
   ultimoEstadoInicio = estadoInicio;
   ultimoEstadoFin = estadoFin;
   
-  delay(50);
+  delay(100);
 }
-//cambios
