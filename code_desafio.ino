@@ -43,9 +43,12 @@ bool verificartriangular(float arreglo[], int cont){
     bool bandera;
     bool bandera2=true;
     for (int i = 1; i < cont-1; i++) {
+      	if (arreglo[i]==arreglo[i+1]){
+          return false;
+        }
         if(pendiente1>0){
             if (((arreglo[i+1]-arreglo[i])/ tiempoentredatos)>0){
-                if(((arreglo[i+1]-arreglo[i])/ tiempoentredatos)-pendiente1<=100 && ((arreglo[i+1]-arreglo[i])/ tiempoentredatos)-pendiente1>=-100){
+                if(((arreglo[i+1]-arreglo[i])/ tiempoentredatos)<=(pendiente1*1.5) && ((arreglo[i+1]-arreglo[i])/ tiempoentredatos)-pendiente1>=(-1*(pendiente1*1.5))){
                     bandera=true;
                 }
                 else{
@@ -58,7 +61,7 @@ bool verificartriangular(float arreglo[], int cont){
         }
         else{
             if (((arreglo[i+1]-arreglo[i])/ tiempoentredatos)<0){
-                if(((arreglo[i+1]-arreglo[i])/ tiempoentredatos)-pendiente1<=1000 && ((arreglo[i+1]-arreglo[i])/ tiempoentredatos)-pendiente1>=-1000){
+                if(((arreglo[i+1]-arreglo[i])/ tiempoentredatos)>=(pendiente1*1.5) && ((arreglo[i+1]-arreglo[i])/ tiempoentredatos)<=(-1*(pendiente1*1.5))){
                     bandera=true;
                 }
                 else{
@@ -77,7 +80,7 @@ bool verificartriangular(float arreglo[], int cont){
             else{
                 if(pendiente2>0){
                     if ((arreglo[i+1]-arreglo[i])/ tiempoentredatos>0){
-                        if(((arreglo[i+1]-arreglo[i])/ tiempoentredatos)-pendiente2<=1000 && ((arreglo[i+1]-arreglo[i])/ tiempoentredatos)-pendiente2>=-1000){
+                        if(((arreglo[i+1]-arreglo[i])/ tiempoentredatos)<=(pendiente2*1.5) && ((arreglo[i+1]-arreglo[i])/ tiempoentredatos)>=(-1*(pendiente2*1.5))){
                             bandera2=true;
                         }
                         else{
@@ -90,7 +93,7 @@ bool verificartriangular(float arreglo[], int cont){
                 }
                 else{
                     if (((arreglo[i+2]-arreglo[i+1])/ tiempoentredatos)<0){
-                        if(((arreglo[i+2]-arreglo[i+1])/ tiempoentredatos)-pendiente2<=1000 && ((arreglo[i+2]-arreglo[i+1])/ tiempoentredatos)-pendiente2>=-1000){
+                        if(((arreglo[i+2]-arreglo[i+1])/ tiempoentredatos)>=(pendiente2*1.5) && ((arreglo[i+2]-arreglo[i+1])/ tiempoentredatos)<=(-1*(pendiente2*1.5))){
                             bandera2=true;
                         }
                         else{
@@ -110,22 +113,49 @@ bool verificartriangular(float arreglo[], int cont){
     return true;
 }
   
-    
+bool verificarsenoidal(float arreglo[], int cont){
+	float suavidad;
+  	bool bandera=true;
+  	for (int i = 1; i < cont-1; i++){
+  		if (arreglo[i]==arreglo[i+1] || arreglo[i]==arreglo[i-1]){
+    		return false;
+    	}
+    	if ((arreglo[i]>arreglo[i-1])&& bandera){
+    		suavidad=arreglo[i]-arreglo[i-1];
+          	bandera=false;
+   		}
+        if((arreglo[i]<arreglo[i-1])&& bandera){
+          	suavidad=arreglo[i-1]-arreglo[i];
+          	bandera=false;
+       	}
+        if(!((arreglo[i+1]-arreglo[i])<=(suavidad*1.5) && ((arreglo[i+1]-arreglo[i])>=(-1*(suavidad*1.5))))){
+          return false;
+       	}     
+    }
+    return true;
+}
 
 int tiposenal(float arreglo[], int cont){
   bool cuadrada=false;
   bool triangular=false;
   bool senoidal=false;
-  bool desconocida=false;
-  cuadrada=verificarcuadrada(arreglo,cont);
-  triangular=verificartriangular(arreglo,cont);
+  bool desconocida=true;
+  if (cont>6);
+  	cuadrada=verificarcuadrada(arreglo,cont);
+    triangular=verificartriangular(arreglo,cont);
+    senoidal=verificarsenoidal(arreglo,cont);
   if (cuadrada){
     return 1;
   }
   else if(triangular){
     return 2;
+  }   
+  else if(senoidal){
+    return 3;
   }
-    
+  else if(desconocida){
+    return 4;
+  }
 }
  
       
@@ -151,7 +181,7 @@ float frecuencia(float arreglo[],int cont, float tiempo){
   
 }
 */
-
+  
 float amplitud(float arreglo[],int cont){
   float mayor=arreglo[0];
   float menor=arreglo[0];
