@@ -116,8 +116,28 @@ bool verificartriangular(float arreglo[], int cont){
 bool verificarsenoidal(float arreglo[], int cont){
   //recibe como argumentos un arreglo de cont posiciones, retorna true si el arreglo tiene comportamiento similar al de una funcion senoidal, de lo contrario retorna false
 	float suavidad;
+  	float pendiente;
+  	float pendientet;
   	bool bandera=true;
   	for (int i = 1; i < cont-1; i++){
+      	pendiente=(arreglo[i]-arreglo[i-1])/0.1;
+        pendientet+=(arreglo[i+1]-arreglo[i])/0.1;
+      	if (pendiente<0){
+          pendiente=pendiente*(-1);
+        }
+      	if (pendiente>0){
+          if(pendientet>0){
+            if (pendientet>=pendiente*0.9 && pendientet<=pendiente*1.1){
+              return false;
+            }
+          }
+          else{
+            pendientet=pendientet*(-1);
+            if (pendientet>=pendiente*0.9 && pendientet<=pendiente*1.1){
+              return false;
+            }
+          }  
+        }
   		if (arreglo[i]==arreglo[i+1] || arreglo[i]==arreglo[i-1]){
     		return false;
     	}
