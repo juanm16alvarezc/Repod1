@@ -37,78 +37,46 @@ bool verificarcuadrada(float arreglo[],int cont){
 bool verificartriangular(float arreglo[], int cont){
   //recibe como argumentos un arreglo de cont posiciones, retorna true si el arreglo tiene comportamiento similar al de una funcion triangular, de lo contrario retorna false
     float tiempoentredatos=0.1;
-    float pendiente1=(arreglo[1]-arreglo[0])/tiempoentredatos;
-    float pendiente2;
-    bool encontradoSegundoValor = false;
-    bool bandera;
-    bool bandera2=true;
+  	float pendiente1;
+  	bool bandera;
+ 	for (int i = 0; i < cont-1; i++) {
+      if (arreglo[i+1]>0){
+        if (arreglo[i]>0){
+          pendiente1=(arreglo[i+1]-arreglo[i])/0.1;
+          break;
+        }
+      }
+    }
     for (int i = 1; i < cont-1; i++) {
       	if (arreglo[i]==arreglo[i+1]){
           return false;
         }
-        if(pendiente1>0){
-            if (((arreglo[i+1]-arreglo[i])/ tiempoentredatos)>0){
-                if(((arreglo[i+1]-arreglo[i])/ tiempoentredatos)<=(pendiente1*1.5) && ((arreglo[i+1]-arreglo[i])/ tiempoentredatos)-pendiente1>=(-1*(pendiente1*1.5))){
-                    bandera=true;
-                }
-                else{
-                    return false;
-                }
-            }
-            else{
+     	if(pendiente1<0){
+          pendiente1=pendiente1*(-1);
+        }
+      	if (arreglo[i+1]>0){
+              if(arreglo[i]>0){
+                bandera=true;   
+              }
+              else{
                 bandera=false;
-            }
+              }
         }
         else{
-            if (((arreglo[i+1]-arreglo[i])/ tiempoentredatos)<0){
-                if(((arreglo[i+1]-arreglo[i])/ tiempoentredatos)>=(pendiente1*1.5) && ((arreglo[i+1]-arreglo[i])/ tiempoentredatos)<=(-1*(pendiente1*1.5))){
-                    bandera=true;
-                }
-                else{
-                    return false;
-                }
+          	if(arreglo[i]<0){
+                bandera=true;
             }
             else{
                 bandera=false;
-            }
-        }      
-        if (!bandera){
-            if (!encontradoSegundoValor) {
-                pendiente2 = (arreglo[i+1]-arreglo[i])/tiempoentredatos;
-                encontradoSegundoValor = true;
             } 
-            else{
-                if(pendiente2>0){
-                    if ((arreglo[i+1]-arreglo[i])/ tiempoentredatos>0){
-                        if(((arreglo[i+1]-arreglo[i])/ tiempoentredatos)<=(pendiente2*1.5) && ((arreglo[i+1]-arreglo[i])/ tiempoentredatos)>=(-1*(pendiente2*1.5))){
-                            bandera2=true;
-                        }
-                        else{
-                            return false;
-                        }
-                    }
-                    else{
-                        bandera2=false;
-                    }
-                }
-                else{
-                    if (((arreglo[i+2]-arreglo[i+1])/ tiempoentredatos)<0){
-                        if(((arreglo[i+2]-arreglo[i+1])/ tiempoentredatos)>=(pendiente2*1.5) && ((arreglo[i+2]-arreglo[i+1])/ tiempoentredatos)<=(-1*(pendiente2*1.5))){
-                            bandera2=true;
-                        }
-                        else{
-                            return false;
-                        }
-                    }
-                    else{
-                        bandera2=false;
-                    }
+       	}
+        if(pendiente1>0){
+          	if (bandera){
+                if(!(((arreglo[i+1]-arreglo[i])/ tiempoentredatos)<=(pendiente1*3) && ((arreglo[i+1]-arreglo[i])/ tiempoentredatos)-pendiente1>=(-1*(pendiente1*3)))){
+                    return false;
                 }
             }
-            if (!bandera2) {
-                return false;
-            }
-        }  
+        }
     }
     return true;
 }
@@ -121,7 +89,7 @@ bool verificarsenoidal(float arreglo[], int cont){
   	bool bandera=true;
   	for (int i = 1; i < cont-1; i++){
       	pendiente=(arreglo[i]-arreglo[i-1])/0.1;
-        pendientet+=(arreglo[i+1]-arreglo[i])/0.1;
+        pendientet=(arreglo[i+1]-arreglo[i])/0.1;
       	if (pendiente<0){
           pendiente=pendiente*(-1);
         }
@@ -296,14 +264,14 @@ void loop(){
   }
   if (recolectandoDatos) {
     float lecturaSenal = analogRead(pinSenal);
-    lcd.setCursor(0, 1);
-    lcd.print("Senal: ");
-    lcd.print(lecturaSenal);
+    //lcd.setCursor(0, 1);
+    //lcd.print("Senal: ");
+    //lcd.print(lecturaSenal);
     arreglo[cont]=lecturaSenal;
     cont++;
 
-    Serial.print("Lectura de senal: ");
-    Serial.println(lecturaSenal);
+    //Serial.print("Lectura de senal: ");
+    //Serial.println(lecturaSenal);
     bandera=true;
   }
   else{
