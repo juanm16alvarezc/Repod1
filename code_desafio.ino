@@ -34,16 +34,18 @@ bool verificarcuadrada(float arreglo[],int cont){
     }
     return true;
 }
-bool verificartriangular(float arreglo[], int cont){
-  //recibe como argumentos un arreglo de cont posiciones, retorna true si el arreglo tiene comportamiento similar al de una funcion triangular, de lo contrario retorna false
-    float tiempoentredatos=0.1;
+bool verificartriangular(float arreglo[], int cont,float tiempoentredato){
+  //recibe como argumentos un arreglo de cont posiciones,y un float, retorna true si el arreglo tiene comportamiento similar al de una funcion triangular, de lo contrario retorna false
+    float tiempoentredatos=tiempoentredato;
   	float pendiente1;
   	bool bandera;
  	for (int i = 0; i < cont-1; i++) {
       if (arreglo[i+1]>0){
         if (arreglo[i]>0){
-          pendiente1=(arreglo[i+1]-arreglo[i])/0.1;
-          break;
+          if (arreglo[i+1]>arreglo[i]){          
+          	pendiente1=(arreglo[i+1]-arreglo[i])/tiempoentredato;
+         	 break;
+          }
         }
       }
     }
@@ -72,20 +74,25 @@ bool verificartriangular(float arreglo[], int cont){
        	}
         if(pendiente1>0){
           	if (bandera){
-                if(!(((arreglo[i+1]-arreglo[i])/ tiempoentredatos)<=(pendiente1*3) && ((arreglo[i+1]-arreglo[i])/ tiempoentredatos)-pendiente1>=(-1*(pendiente1*3)))){
+              if(arreglo[i+1]>arreglo[i]){
+                if(!(((arreglo[i+1]-arreglo[i])/ tiempoentredatos)<=(pendiente1*1.2) && ((arreglo[i+1]-arreglo[i])/ tiempoentredatos)>=-1*(pendiente1*1.2))){
                     return false;
                 }
+              }
             }
         }
     }
     return true;
 }
   
-bool verificarsenoidal(float arreglo[], int cont){
-  //recibe como argumentos un arreglo de cont posiciones, retorna true si el arreglo tiene comportamiento similar al de una funcion senoidal, de lo contrario retorna false
+bool verificarsenoidal(float arreglo[], int cont,float tiempoentredato){
+  //recibe como argumentos un arreglo de cont posiciones, y un float, retorna true si el arreglo tiene comportamiento similar al de una funcion senoidal, de lo contrario retorna false
 	float suavidad;
-  	float pendiente;
-  	float pendientet;
+  	int conttrue=0;
+  	int contfalse=0;
+  	float pendiente,pendientet;
+  	float contptrue=0;
+  	float contpfalse=0;
   	bool bandera=true;
   	for (int i = 1; i < cont-1; i++){
       	pendiente=(arreglo[i]-arreglo[i-1])/0.1;
@@ -96,16 +103,22 @@ bool verificarsenoidal(float arreglo[], int cont){
       	if (pendiente>0){
           if(pendientet>0){
             if (pendientet>=pendiente*0.9 && pendientet<=pendiente*1.1){
-              return false;
+              contpfalse++;
+            }
+            else{
+              contptrue++;
             }
           }
           else{
             pendientet=pendientet*(-1);
             if (pendientet>=pendiente*0.9 && pendientet<=pendiente*1.1){
-              return false;
+              contpfalse++;
+            }
+            else{
+              contptrue++;
             }
           }  
-        }
+        }     	
   		if (arreglo[i]==arreglo[i+1] || arreglo[i]==arreglo[i-1]){
     		return false;
     	}
@@ -117,23 +130,42 @@ bool verificarsenoidal(float arreglo[], int cont){
           	suavidad=arreglo[i-1]-arreglo[i];
           	bandera=false;
        	}
-        if(!((arreglo[i+1]-arreglo[i])<=(suavidad*1.5) && ((arreglo[i+1]-arreglo[i])>=(-1*(suavidad*1.5))))){
-          return false;
+      	if (suavidad<0){
+          suavidad=suavidad*(-1);
+        }
+     	if (!bandera){
+      		if ((arreglo[i]>arreglo[i-1])&& (arreglo[i+1]>arreglo[i])){
+        		if(((arreglo[i+1]-arreglo[i])<=(suavidad*1.3) && ((arreglo[i+1]-arreglo[i])>=(-1*(suavidad*1.3))))){
+          			conttrue++;
+                }
+              	else{
+                  contfalse++;
+                }
+                
+            }
        	}     
     }
-    return true;
+  	if (conttrue>contfalse){
+      if (contptrue>contpfalse){
+      	return true;
+      }
+    }
+  	else{
+      return false;
+    }
+    
 }
 
-int tiposenal(float arreglo[], int cont){
-  //recibe como argumentos un arreglo de cont unidades, retorna un valor entre 1 y 5
+int tiposenal(float arreglo[], int cont,float tiempoentredato){
+  //recibe como argumentos un arreglo de cont unidades, y tiempo entre dato es un float, retorna un valor entre 1 y 5
   bool cuadrada=false;
   bool triangular=false;
   bool senoidal=false;
   bool desconocida=true;
   if (cont>6);
   	cuadrada=verificarcuadrada(arreglo,cont);
-    triangular=verificartriangular(arreglo,cont);
-    senoidal=verificarsenoidal(arreglo,cont);
+    triangular=verificartriangular(arreglo,cont,tiempoentredato);
+    senoidal=verificarsenoidal(arreglo,cont,tiempoentredato);
   if (cuadrada){
     return 1;
   }
@@ -151,7 +183,7 @@ int tiposenal(float arreglo[], int cont){
   }
 }
  
-float frecuencia_c(float arreglo[],int cont){
+float frecuencia_c(float arreglo[],int cont,float tiempoentredato){
   //recibe como argumento un arreglo de cont unidades, retorna un float cercano a la frecuencia de una funcion cuadrada
   float frecuencia;
   bool cambio=false;
@@ -172,14 +204,14 @@ float frecuencia_c(float arreglo[],int cont){
     if (cambio){
       p++;
       if (valorcambio!=primervalor){
-        frecuencia=1/(0.1*p);
+        frecuencia=1/(tiempoentredato*p);
         return frecuencia;
       }
     }
   }
 }
 
-float frecuencia_st(float arreglo[],int cont){
+float frecuencia_st(float arreglo[],int cont,float tiempoentredato){
   //recibe como argumento un arreglo de cont unidades, retorna un float cercano a la frecuencia si se tienen los suficientes datos
   float frecuencia;
   int c=1;
@@ -195,7 +227,7 @@ float frecuencia_st(float arreglo[],int cont){
     }
   }
   for (int i = 0; i < cont-1; i++){
-    if (arreglo[i]>=max*0.9){
+    if (arreglo[i]>=max){
       pos=i;
       break;
     }
@@ -204,13 +236,13 @@ float frecuencia_st(float arreglo[],int cont){
     c++;
     if (min>=0){   
         if (arreglo[j]<=min*1.1){
-          frecuencia=1/((c*0.1)*2);
+          frecuencia=1/((c*tiempoentredato)*2);
           return frecuencia;
         }
     }
     if (min<0){
       if (arreglo[j]<=min*0.9){
-        frecuencia=1/((c*0.1)*2);
+        frecuencia=1/((c*tiempoentredato)*2);
       	return frecuencia;
       }
     }
@@ -243,14 +275,19 @@ void setup(){
 }
 
 void loop(){
+  float tiempoentredato;
   bool estadoInicio = digitalRead(pinInicio);
   bool estadoFin = digitalRead(pinFin);
   int *tiposenalvar=new int;
+  float tiempoinicial;
+  float tiempofinal;
+  float tiempo;
   
   if (ultimoEstadoInicio == HIGH && estadoInicio == LOW) {
     delay(debounceDelay);
     if (digitalRead(pinInicio) == LOW) {
       recolectandoDatos = true;
+      tiempoinicial=millis();
       lcd.clear();
     }
   }
@@ -259,6 +296,8 @@ void loop(){
     delay(debounceDelay);
     if (digitalRead(pinFin) == LOW) { 
       recolectandoDatos = false;
+      tiempofinal=millis();
+      tiempo=(tiempofinal-tiempoinicial)/1000;
       lcd.clear();
     }
   }
@@ -271,11 +310,12 @@ void loop(){
     cont++;
 
     //Serial.print("Lectura de senal: ");
-    //Serial.println(lecturaSenal);
     bandera=true;
   }
   else{
     if (bandera){
+      Serial.println(tiempo);
+      tiempoentredato=tiempo/cont;
       float amplitudf;
       amplitudf=amplitud(arreglo,cont);
       lcd.print("A:");
@@ -283,26 +323,26 @@ void loop(){
       lcd.print("V");
       lcd.setCursor(9, 0);
       lcd.print("T.S:");
-      *tiposenalvar=tiposenal(arreglo,cont);    
+      *tiposenalvar=tiposenal(arreglo,cont,tiempoentredato);    
       if (*tiposenalvar==1){
         lcd.print("C");
         lcd.setCursor(5, 1);
         lcd.print("F:");
-        lcd.print(frecuencia_c(arreglo,cont));
+        lcd.print(frecuencia_c(arreglo,cont,tiempoentredato));
         lcd.print("H");
       }
       if (*tiposenalvar==2){
         lcd.print("T");
         lcd.setCursor(5, 1);
         lcd.print("F:");
-       	lcd.print(frecuencia_st(arreglo,cont));
+       	lcd.print(frecuencia_st(arreglo,cont,tiempoentredato));
         lcd.print("H");
       }
       if (*tiposenalvar==3){
         lcd.print("S");
         lcd.setCursor(5, 1);
         lcd.print("F:");
-       lcd.print(frecuencia_st(arreglo,cont));
+       lcd.print(frecuencia_st(arreglo,cont,tiempoentredato));
         lcd.print("H");
       }
       if (*tiposenalvar==4){
@@ -314,7 +354,7 @@ void loop(){
         lcd.print("T_S");
         lcd.setCursor(5, 1);
         lcd.print("F:");
-        lcd.print(frecuencia_st(arreglo,cont));
+        lcd.print(frecuencia_st(arreglo,cont,tiempoentredato));
         lcd.print("H");
       }
     }
@@ -327,5 +367,5 @@ void loop(){
   ultimoEstadoInicio = estadoInicio;
   ultimoEstadoFin = estadoFin;
   
-  delay(100);
+  delay(30);
 }
